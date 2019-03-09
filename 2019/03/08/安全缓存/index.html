@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="一,二,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="现状 &amp;amp; 需求当前问题：    在大部分记录数据场景中，数据记录后会先缓冲到内存中，之后再转移到持久化存储中，如果在转移前发生崩溃或应用退出，则内存中数据会丢失，为了防止丢失需实时写入，而这样会造成频繁的IO操作影响性能 多进程情况一般会有如配置文件共享之类的需求    mmap具有以下特性：  较高的IO性能（与内存直接读写等级相当，远优于普通io） 存于其中的内容在进程崩溃后会由系统负">
+<meta name="keywords" content="一,二">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SafeCache设计">
+<meta property="og:url" content="http://makunle.github.io/2019/03/08/安全缓存/index.html">
+<meta property="og:site_name" content="Noest">
+<meta property="og:description" content="现状 &amp;amp; 需求当前问题：    在大部分记录数据场景中，数据记录后会先缓冲到内存中，之后再转移到持久化存储中，如果在转移前发生崩溃或应用退出，则内存中数据会丢失，为了防止丢失需实时写入，而这样会造成频繁的IO操作影响性能 多进程情况一般会有如配置文件共享之类的需求    mmap具有以下特性：  较高的IO性能（与内存直接读写等级相当，远优于普通io） 存于其中的内容在进程崩溃后会由系统负">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-03-08T14:46:07.097Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="SafeCache设计">
+<meta name="twitter:description" content="现状 &amp;amp; 需求当前问题：    在大部分记录数据场景中，数据记录后会先缓冲到内存中，之后再转移到持久化存储中，如果在转移前发生崩溃或应用退出，则内存中数据会丢失，为了防止丢失需实时写入，而这样会造成频繁的IO操作影响性能 多进程情况一般会有如配置文件共享之类的需求    mmap具有以下特性：  较高的IO性能（与内存直接读写等级相当，远优于普通io） 存于其中的内容在进程崩溃后会由系统负">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":true,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://makunle.github.io/2019/03/08/安全缓存/">
+
+
+
+
+
+  <title>SafeCache设计 | Noest</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Noest</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://makunle.github.io/2019/03/08/安全缓存/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="makunle">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Noest">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">SafeCache设计</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-08T22:46:07+08:00">
+                2019-03-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/类/" itemprop="url" rel="index">
+                    <span itemprop="name">类</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="现状-amp-需求"><a href="#现状-amp-需求" class="headerlink" title="现状 &amp; 需求"></a>现状 &amp; 需求</h2><p>当前问题：  </p>
+<ul>
+<li>在大部分记录数据场景中，数据记录后会先缓冲到内存中，之后再转移到持久化存储中，如果在转移前发生崩溃或应用退出，则内存中数据会丢失，为了防止丢失需实时写入，而这样会造成频繁的IO操作影响性能</li>
+<li>多进程情况一般会有如配置文件共享之类的需求  </li>
+</ul>
+<p>mmap具有以下特性：</p>
+<ul>
+<li>较高的IO性能（与内存直接读写等级相当，远优于普通io）</li>
+<li>存于其中的内容在进程崩溃后会由系统负责写回磁盘</li>
+</ul>
+<h2 id="目标"><a href="#目标" class="headerlink" title="目标"></a>目标</h2><p>基于当前现状，拟以mmap为基础实现通用的安全缓存SafeCache，SafeCache具有以下特点：</p>
+<blockquote>
+<ul>
+<li>以较高的性能保证数据安全    </li>
+<li>支持多进程数据共享  </li>
+</ul>
+</blockquote>
+<p>SafeCache使用场景为：</p>
+<blockquote>
+<ul>
+<li>可替换目前使用的内存缓存 + 持久化策略中的内存缓存，提供安全的数据功能  </li>
+<li>作为快速、轻量的持久存储使用</li>
+<li>多进程数据共享使用</li>
+</ul>
+</blockquote>
+<h2 id="用法-amp-API"><a href="#用法-amp-API" class="headerlink" title="用法 &amp; API"></a>用法 &amp; API</h2><h4 id="缓存对象-Entity"><a href="#缓存对象-Entity" class="headerlink" title="缓存对象 Entity"></a>缓存对象 Entity</h4><h4 id="安全List-API"><a href="#安全List-API" class="headerlink" title="安全List API"></a>安全List API</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">listDemo</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 值的序列化和反序列化转换</span></span><br><span class="line">    BaseTypeConverter&lt;String&gt; cv = <span class="keyword">new</span> BaseTypeConverter&lt;&gt;(String.class);</span><br><span class="line">    <span class="comment">// 数据文件路径</span></span><br><span class="line">    String dataPath = <span class="string">"/sdcard/safecache_list.data"</span>;</span><br><span class="line">    <span class="comment">// 相关参数配置</span></span><br><span class="line">    CacheConfig.Builder builder = <span class="keyword">new</span> CacheConfig.Builder();</span><br><span class="line">    builder.multiProcess(<span class="keyword">true</span>)      <span class="comment">// 是否支持多进程，默认false</span></span><br><span class="line">            .canExtend(<span class="keyword">true</span>)        <span class="comment">// 数据文件是否可扩展，默认true</span></span><br><span class="line">            .withMemory(<span class="keyword">true</span>)       <span class="comment">// 含有内存副本，默认true</span></span><br><span class="line">            .initSize(<span class="number">500</span>)          <span class="comment">// 数据文件初始大小，默认4KB，单位B</span></span><br><span class="line">            .maxSize(<span class="number">1024</span> * <span class="number">1024</span>)   <span class="comment">// 数据文件最大值，默认50MB，单位B</span></span><br><span class="line">            .setStateListener(<span class="keyword">new</span> ICacheStateListener() &#123; <span class="comment">// 状态监听，可不设置</span></span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onFull</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">                    <span class="comment">// 不可扩展时文件写满</span></span><br><span class="line">                    <span class="comment">// 可扩展但无法扩展(达到最大值、磁盘空间不足）</span></span><br><span class="line">                    LogX.d(TAG, <span class="string">"cache full"</span>);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line">    CacheConfig cfg = build.build();</span><br><span class="line">    safeList = <span class="keyword">new</span> SafeArrayList&lt;&gt;(dataPath, cv, cfg);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">int</span> size = safeList.size();</span><br><span class="line">    </span><br><span class="line">    Data d = safeList.get(<span class="number">3</span>);</span><br><span class="line">    safeList.add(<span class="keyword">new</span> Data(<span class="string">"abc"</span>));</span><br><span class="line">    </span><br><span class="line">    safeList.set(<span class="number">1</span>, <span class="keyword">new</span> Data(<span class="string">"efg"</span>));</span><br><span class="line"></span><br><span class="line">    ArrayList&lt;Data&gt; jdkList = safeList.getList();</span><br><span class="line"></span><br><span class="line">    safeList.clear();</span><br><span class="line">    assertTrue(safeList.isEmpty());</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (safeList.isChanged()) &#123;</span><br><span class="line">        <span class="comment">// data changed</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="安全Map-API"><a href="#安全Map-API" class="headerlink" title="安全Map API"></a>安全Map API</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MapDemo</span> </span>&#123;</span><br><span class="line">    IConverter&lt;String&gt; stringCver = <span class="keyword">new</span> BaseTypeConverter&lt;&gt;(String.class);</span><br><span class="line">    <span class="comment">// builder支持的配置同SafeArrayList示例</span></span><br><span class="line">    CacheConfig.Builder builder = <span class="keyword">new</span> CacheConfig.Builder();</span><br><span class="line">    CacheConfig cfg = builder.build();</span><br><span class="line">    SafeHashMap&lt;String, String&gt; safeMap = <span class="keyword">new</span> SafeHashMap&lt;&gt;(<span class="string">"map.data"</span>, stringCver, stringCver, cfg);</span><br><span class="line">                </span><br><span class="line">    safeMap.put(<span class="string">"newKey"</span>, <span class="keyword">new</span> Data(<span class="string">"newValue"</span>));</span><br><span class="line">   	Data value = safeMap.get(<span class="string">"key"</span>);</span><br><span class="line">    safeMap.isEmpty();</span><br><span class="line">    safeMap.clear();</span><br><span class="line">    assertTrue(safeMap.isEmpty());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注：初始化是如果无磁盘写权限或磁盘空间不足，<strong>会打印错误日志</strong>，此时如果开启内存副本，则只会操作内存副本，不进行持久化操作，如无内存副本，实际操作不生效</p>
+<h4 id="自定义数据类型"><a href="#自定义数据类型" class="headerlink" title="自定义数据类型"></a>自定义数据类型</h4><p>对于基础的数据类型，SafeArrayList和SafeHashMap内部会自动进行序列化和反序列化操作，<br>如要使用非基本类型对象，在初始化SafeArrayList、SafeHashMap时需传入实现IConverter接口的自定义 DataConverter</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">IConverter</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 对象序列化操作</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@NonNull</span></span><br><span class="line">    <span class="keyword">byte</span>[] objToBytes(<span class="meta">@NonNull</span> T obj);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 反序列化操作</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Nullable</span></span><br><span class="line">    <span class="function">T <span class="title">bytesToObj</span><span class="params">(@NonNull <span class="keyword">byte</span>[] bytes)</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 自定义对象</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MObj</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">byte</span>[] toByte() &#123;</span><br><span class="line">        ...</span><br><span class="line">        <span class="keyword">return</span> bytes;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> MObj <span class="title">fromByte</span><span class="params">(<span class="keyword">byte</span>[] bytes)</span> </span>&#123;</span><br><span class="line">        ...</span><br><span class="line">        <span class="keyword">return</span> obj;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 自定义对象的转化类</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Converter</span> <span class="keyword">implements</span> <span class="title">IConverter</span>&lt;<span class="title">MObj</span>&gt; </span>&#123;</span><br><span class="line">        <span class="meta">@NonNull</span></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">byte</span>[] objToBytes(<span class="meta">@NonNull</span> MObj obj) &#123;</span><br><span class="line">            <span class="keyword">return</span> obj.toByte();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Nullable</span></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> MObj <span class="title">bytesToObj</span><span class="params">(@NonNull <span class="keyword">byte</span>[] bytes)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> fromByte(bytes);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><h3 id="容器类"><a href="#容器类" class="headerlink" title="容器类"></a>容器类</h3><p>SafeArrayList 内部维护一个 ArrayList(内存中) 和一个map文件映射</p>
+<blockquote>
+<ul>
+<li>初始化时使用Mmap中内容填充List</li>
+<li>增删改查时内存中直接修改ArrayList，另外同步修改Mmap</li>
+<li>Mmap 采用线性操作，基础操作只支持追加写入操作，通过策略实现增、删、改</li>
+</ul>
+</blockquote>
+<p>SafeHashMap 内部维护一个HashMap(内存)和一个map文件映射</p>
+<blockquote>
+<ul>
+<li>初始化时使用Mmap中内容填充Map</li>
+<li>增删改同SafeArrayList</li>
+</ul>
+</blockquote>
+<h3 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h3><p>安全缓存数据以线性方式存放于磁盘中，内部使用流式存储方式实现，支持的基本操作为</p>
+<blockquote>
+<ul>
+<li>持续追加</li>
+<li>整体重写</li>
+</ul>
+</blockquote>
+<p>增删改查功能通过相关策略实现，总体数据结构如下：</p>
+<ul>
+<li>信息文件</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>IHD</th>
+<th>LK</th>
+<th>WC</th>
+<th>EP</th>
+<th>CC</th>
+<th>FL</th>
+<th>FV</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>4byte</td>
+<td>1byte</td>
+<td>4byte</td>
+<td>4byte</td>
+<td>4byte</td>
+<td>4byte</td>
+<td>4byte</td>
+</tr>
+</tbody>
+</table>
+<p>字段说明如下：</p>
+<blockquote>
+<p>IHD：信息文件文件头<br>LK：文件锁区域<br>WC: 写入次数,次数增加说明内容改变<br>EP: 数据文件有效数据结尾位置，改变后需要加载更新<br>CC: clear计数,变化说明发生清空,根据fv判端要不要重map文件<br>FL: 文件长度<br>FV: 文件版本,数据文件的后缀号  </p>
+</blockquote>
+<ul>
+<li>主数据文件和临时文件(重整时会写到新的临时文件，写入完成后设置为主文件)  </li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>FHD</th>
+<th>M</th>
+<th>item</th>
+<th>sum</th>
+<th>…</th>
+<th>M</th>
+<th>item</th>
+<th>sum</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>4byte</td>
+<td>2byte</td>
+<td></td>
+<td>1byte</td>
+<td></td>
+<td>2byte</td>
+<td></td>
+<td>1byte</td>
+</tr>
+</tbody>
+</table>
+<p>各字段说明如下：</p>
+<blockquote>
+<p>FHD：文件头, 4byte, {‘s’, ‘a,’ ,’f’, ‘i’}<br>M：数据开始标识，内容固定，用于数据区分<br>item：真正的数据部分<br>sum: item内容校验和</p>
+</blockquote>
+<p>item部分结构如下：</p>
+<table>
+<thead>
+<tr>
+<th>KLEN</th>
+<th>KDATA</th>
+<th>VLEN</th>
+<th>VDATA</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>4byte</td>
+<td></td>
+<td>4byte</td>
+</tr>
+</tbody>
+</table>
+<p>各字段说明如下：</p>
+<blockquote>
+<p>KLEN：4字节，表示KEY部分长度，对应map的键，list的索引<br>KDATA：实际的数据，List中对应一个Data序列化的内容，Map中可组装k-v为一个data<br>VLEN：4字节，表示VALUE部分长度<br>VDATA：内容  </p>
+</blockquote>
+<h3 id="增删改查实现"><a href="#增删改查实现" class="headerlink" title="增删改查实现"></a>增删改查实现</h3><p>对安全缓存的数据操作，实质都是在映射文件上append一个数据块（item），其他进程同步数据时会读取新的数据块，根据块内容判断需要进行的操作。</p>
+<p>不同操作对应的数据块如下：</p>
+<ul>
+<li>增：添加一个正常的 item</li>
+<li>删：添加一个 key 为要删除的 key, VLEN 为 -1, VDATA 为空的item</li>
+<li>改：同增</li>
+<li>查：查询内存副本中的数据，如无内存副本无法查询</li>
+<li>清除：清除所有数据，info中 cc+1、ep = FIRST_DATA_PTR</li>
+</ul>
+<h4 id="数据添加"><a href="#数据添加" class="headerlink" title="数据添加"></a>数据添加</h4><p>对于添加item，操作流程如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">def _append(k, v):</span><br><span class="line">    if itemLen &lt; remainLen:</span><br><span class="line">        append(data_file, item)</span><br><span class="line">        updateInfo() // 更新info信息 wc、ep</span><br><span class="line">        return SUCCESS</span><br><span class="line">    else:</span><br><span class="line">        if nowLen &lt; maxLen:</span><br><span class="line">            return NEED_EXTEND</span><br><span class="line">        else</span><br><span class="line">            return FULL</span><br><span class="line"></span><br><span class="line">def append(k, v):</span><br><span class="line">    updateSelfToNew()   // 更新自身状态到最新,见下方数据同步实现</span><br><span class="line">    memoryPerform(k, v) // 内存副本执行增删改查操作</span><br><span class="line">    ret = _append(k, v)</span><br><span class="line">    if ret == SUCCESS:</span><br><span class="line">        return</span><br><span class="line">    else if ret == FULL:</span><br><span class="line">    	listener.onFull() // 通知写满</span><br><span class="line">    else if ret == NEED_EXTEND:</span><br><span class="line">    	success = remake();	// 重整，见下方数据重整</span><br><span class="line">    	if success:</span><br><span class="line">        	return</span><br><span class="line">        else：</span><br><span class="line">        	listener.onFull() // 通知写满</span><br></pre></td></tr></table></figure>
+<h4 id="数据重整"><a href="#数据重整" class="headerlink" title="数据重整"></a>数据重整</h4><p>因为增删改都是添加的方式，文件内存储的实际数据长度可能小于需要的长度。</p>
+<p>当需要添加item但没有空间时，会进行重整操作合并数据（读取内存中数据即可），如果合并后的数据长度还是大于文件长度，则增加文件长度（x2），重整过程如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">def _memWrite(file):</span><br><span class="line">	for item in allItems:</span><br><span class="line">		if remainLen(file) &lt; item.len:</span><br><span class="line">			success = extendFile(file, min(MAX_LEN, fileLen * 2)) // 扩展文件长度到新值</span><br><span class="line">			if !success:</span><br><span class="line">				return false</span><br><span class="line">		write(item, file) // 写item到数据文件</span><br><span class="line">	return true</span><br><span class="line">	</span><br><span class="line">def remake();</span><br><span class="line">    backupState() // 备份当前状态信息</span><br><span class="line">	newFile = makeNewDataFile(mFileLen) // 创建长度和当前数据文件相同的数据文件</span><br><span class="line">	success = _memWrite(newFile) // 向新文件写数据</span><br><span class="line">	if success:</span><br><span class="line">		updateInfo() // 写成功，更新info文件中的信息 wc、fv、fl、cc、ep</span><br><span class="line">		deleteOldDataFile() // 删除老数据文件</span><br><span class="line">	else:</span><br><span class="line">		restoreState() // 写失败，还原备份的信息</span><br></pre></td></tr></table></figure>
+<h3 id="数据同步实现"><a href="#数据同步实现" class="headerlink" title="数据同步实现"></a>数据同步实现</h3><h5 id="状态判断"><a href="#状态判断" class="headerlink" title="状态判断"></a>状态判断</h5><p>多进程共享同一数据文件时，每个进程内会维护自身状态信息，每次数据操作前会判断info文件中的状态与自身状态关系，从而判断出有没有数据更新和数据发生了何种更新，状态判断更新判断方式和过程如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">read wc  // 读取 writecount</span><br><span class="line">if !wc changed: </span><br><span class="line">    mark no update // writecount 未变化说明无更新</span><br><span class="line">    return nochange</span><br><span class="line">if wc changed:  // writecount 变化说明有更新</span><br><span class="line">    read ep  </span><br><span class="line">    read cc  </span><br><span class="line">    if cc changed:  // clearcount 变化说明发生数据清除操作，需重头加载数据</span><br><span class="line">        read fl, fv  </span><br><span class="line">        if fv changed: // fileversion 改变，需重新映射数据文件</span><br><span class="line">            remap</span><br><span class="line">        else</span><br><span class="line">            if fl changed: // filelen 改变，需重新映射数据文件</span><br><span class="line">                remap</span><br><span class="line">        return reset // 返回 reset</span><br><span class="line">    else  // clearcount 没变，只要读取跟新内容</span><br><span class="line">        read fl  </span><br><span class="line">        if fl changed: // filelen 改变，重新映射数据文件</span><br><span class="line">            remap</span><br><span class="line">        return update  // 返回 update</span><br></pre></td></tr></table></figure>
+<p>更新状态分为 UPDATE 和 RESET，两种状态对应的处理为：  </p>
+<ul>
+<li>UPDATE: 从自身记录的数据尾指针开始读取到真正尾指针位置，使用读取到的item更新自身数据</li>
+<li>RESET: 清除自身数据，重新重头加载数据  </li>
+</ul>
+<p>假设有两个进程A、B，两进程初始状态如下：</p>
+<table>
+<thead>
+<tr>
+<th>ProcessA</th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th style="text-align:center">aptr</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Data</strong></td>
+<td>item1</td>
+<td>item2</td>
+<td>item3</td>
+<td>item…</td>
+<td style="text-align:center"><em>itemN</em></td>
+</tr>
+<tr>
+<td><strong>ProcessB</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:center"><strong>bptr</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Aptr表示A记录的自身数据尾指针位置，Bptr为B进程数据自身数据尾指针位置</p>
+<h5 id="数据更新-update"><a href="#数据更新-update" class="headerlink" title="数据更新 update"></a>数据更新 update</h5><p>当A进程写入新数据后状态如下：</p>
+<table>
+<thead>
+<tr>
+<th>ProcessA</th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th style="text-align:center"></th>
+<th></th>
+<th style="text-align:center">aptr</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Data</strong></td>
+<td>item1</td>
+<td>item2</td>
+<td>item3</td>
+<td>item…</td>
+<td style="text-align:center"><em>itemN</em></td>
+<td>itemN+1</td>
+<td style="text-align:center">itemN+2</td>
+</tr>
+<tr>
+<td><strong>ProcessB</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:center"><strong>bptr</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>B进程再次操作数据时会判断出状态为 <strong>update</strong>，这时B会读取itemN+1、itemN+2来对内存中的数据结构进行增删改操作，操作完成后A和B状态如下：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">ProcessA</th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th style="text-align:center">aptr</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><strong>Data</strong></td>
+<td>item1</td>
+<td>item2</td>
+<td>item3</td>
+<td>item…</td>
+<td>itemN</td>
+<td>itemN+1</td>
+<td style="text-align:center">itemN+2</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>ProcessB</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:center"><strong>bptr</strong></td>
+</tr>
+</tbody>
+</table>
+<h5 id="数据重整-reset"><a href="#数据重整-reset" class="headerlink" title="数据重整 reset"></a>数据重整 reset</h5><p>当A进程写数据后空间不够，需要重新完整写入，或者A进程了clear操作，之后写入，数据状态如下：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">ProcessA</th>
+<th></th>
+<th style="text-align:center">aptr</th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th style="text-align:center"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>Data</strong></td>
+<td>item1</td>
+<td style="text-align:center">item2</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>ProcessB</strong></td>
+<td></td>
+<td style="text-align:center"></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:center"><strong>bptr</strong></td>
+</tr>
+</tbody>
+</table>
+<p>B进程再次操作数据前，会判断出状态为 <strong>reset</strong>，这时B会清除内存中的数据，然后将Bptr置于初始位置，之后读取出item1、item2，并更新内存中的数据，B进程更新后数据状态如下：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">ProcessA</th>
+<th style="text-align:center"></th>
+<th style="text-align:center">aptr</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Data</td>
+<td style="text-align:center">item1</td>
+<td style="text-align:center">item2</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>ProcessB</strong></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"><strong>bptr</strong></td>
+</tr>
+</tbody>
+</table>
+<h5 id="读写同步"><a href="#读写同步" class="headerlink" title="读写同步"></a>读写同步</h5><p>进程内的同步使用 synchronize 方式，进程间使用文件锁方式控制：</p>
+<blockquote>
+<ul>
+<li>进程需要读时，需先获取共享锁，然后读，读完成释放锁  </li>
+<li>进程需要写时，需先获取共享锁，再获取独占锁，然后写，写完成释放锁  </li>
+</ul>
+</blockquote>
+<p>获取相关锁时可能存在等待，相关操作需放在线程中处理。文件锁在进程崩溃后可自动释放</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/一/" rel="tag"># 一</a>
+          
+            <a href="/tags/二/" rel="tag"># 二</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/03/08/Hello world/" rel="next" title="hello world">
+                <i class="fa fa-chevron-left"></i> hello world
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">makunle</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#现状-amp-需求"><span class="nav-number">1.</span> <span class="nav-text">现状 &amp; 需求</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#目标"><span class="nav-number">2.</span> <span class="nav-text">目标</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#用法-amp-API"><span class="nav-number">3.</span> <span class="nav-text">用法 &amp; API</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#缓存对象-Entity"><span class="nav-number">3.0.1.</span> <span class="nav-text">缓存对象 Entity</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#安全List-API"><span class="nav-number">3.0.2.</span> <span class="nav-text">安全List API</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#安全Map-API"><span class="nav-number">3.0.3.</span> <span class="nav-text">安全Map API</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#自定义数据类型"><span class="nav-number">3.0.4.</span> <span class="nav-text">自定义数据类型</span></a></li></ol></li></ol><li class="nav-item nav-level-2"><a class="nav-link" href="#实现"><span class="nav-number">4.</span> <span class="nav-text">实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#容器类"><span class="nav-number">4.1.</span> <span class="nav-text">容器类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#数据结构"><span class="nav-number">4.2.</span> <span class="nav-text">数据结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#增删改查实现"><span class="nav-number">4.3.</span> <span class="nav-text">增删改查实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#数据添加"><span class="nav-number">4.3.1.</span> <span class="nav-text">数据添加</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#数据重整"><span class="nav-number">4.3.2.</span> <span class="nav-text">数据重整</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#数据同步实现"><span class="nav-number">4.4.</span> <span class="nav-text">数据同步实现</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#状态判断"><span class="nav-number">4.4.0.1.</span> <span class="nav-text">状态判断</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#数据更新-update"><span class="nav-number">4.4.0.2.</span> <span class="nav-text">数据更新 update</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#数据重整-reset"><span class="nav-number">4.4.0.3.</span> <span class="nav-text">数据重整 reset</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#读写同步"><span class="nav-number">4.4.0.4.</span> <span class="nav-text">读写同步</span></a></li></ol></li></ol></li></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">makunle</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
