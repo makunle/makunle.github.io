@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="android,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="定义此处将应用的安装时机分为：  预装 新机或刷机后第一时间安装（1天内） 其他情况  原理可获取的信息 uid  Android中每个app会被作为一个用户处理，拥有一个 uid 。正常情况下app的 uid 是根据安装先后递增的， uid 的范围在 android.os.Process 中定义如下： 123456789101112/** * Defines the start of a ran">
+<meta name="keywords" content="android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android应用安装时机简易判断">
+<meta property="og:url" content="http://makunle.github.io/2019/03/10/Android应用安装时机简易判断/index.html">
+<meta property="og:site_name" content="自在">
+<meta property="og:description" content="定义此处将应用的安装时机分为：  预装 新机或刷机后第一时间安装（1天内） 其他情况  原理可获取的信息 uid  Android中每个app会被作为一个用户处理，拥有一个 uid 。正常情况下app的 uid 是根据安装先后递增的， uid 的范围在 android.os.Process 中定义如下： 123456789101112/** * Defines the start of a ran">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-03-10T14:17:55.794Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android应用安装时机简易判断">
+<meta name="twitter:description" content="定义此处将应用的安装时机分为：  预装 新机或刷机后第一时间安装（1天内） 其他情况  原理可获取的信息 uid  Android中每个app会被作为一个用户处理，拥有一个 uid 。正常情况下app的 uid 是根据安装先后递增的， uid 的范围在 android.os.Process 中定义如下： 123456789101112/** * Defines the start of a ran">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":true,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://makunle.github.io/2019/03/10/Android应用安装时机简易判断/">
+
+
+
+
+
+  <title>Android应用安装时机简易判断 | 自在</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">自在</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://makunle.github.io/2019/03/10/Android应用安装时机简易判断/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="makunle">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="自在">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Android应用安装时机简易判断</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-10T22:11:02+08:00">
+                2019-03-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/android开发/" itemprop="url" rel="index">
+                    <span itemprop="name">android开发</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/03/10/Android应用安装时机简易判断/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2019/03/10/Android应用安装时机简易判断/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i> 阅读次数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h1><p>此处将应用的安装时机分为：</p>
+<ul>
+<li>预装</li>
+<li>新机或刷机后第一时间安装（1天内）</li>
+<li>其他情况</li>
+</ul>
+<h1 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h1><h2 id="可获取的信息"><a href="#可获取的信息" class="headerlink" title="可获取的信息"></a>可获取的信息</h2><ul>
+<li><strong>uid</strong></li>
+</ul>
+<p>Android中每个app会被作为一个用户处理，拥有一个 <code>uid</code> 。正常情况下app的 <code>uid</code> 是根据安装先后递增的， <code>uid</code> 的范围在 <code>android.os.Process</code> 中定义如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Defines the start of a range of UIDs (and GIDs), going from this</span></span><br><span class="line"><span class="comment"> * number to &#123;<span class="doctag">@link</span> #LAST_APPLICATION_UID&#125; that are reserved for assigning</span></span><br><span class="line"><span class="comment"> * to applications.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> FIRST_APPLICATION_UID = <span class="number">10000</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Last of application-specific UIDs starting at</span></span><br><span class="line"><span class="comment"> * &#123;<span class="doctag">@link</span> #FIRST_APPLICATION_UID&#125;.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> LAST_APPLICATION_UID = <span class="number">19999</span>;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>flags</strong></li>
+</ul>
+<p><code>android.content.pm.ApplicationInfo</code> 有 <code>flags</code>  字段，如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Flags associated with the application.  Any combination of</span></span><br><span class="line"><span class="comment"> * &#123;<span class="doctag">@link</span> #FLAG_SYSTEM&#125;, &#123;<span class="doctag">@link</span> #FLAG_DEBUGGABLE&#125;, &#123;<span class="doctag">@link</span> #FLAG_HAS_CODE&#125;,</span></span><br><span class="line"><span class="comment"> * &#123;<span class="doctag">@link</span> #FLAG_PERSISTENT&#125;, &#123;<span class="doctag">@link</span> #FLAG_FACTORY_TEST&#125;, and</span></span><br><span class="line"><span class="comment"> * &#123;<span class="doctag">@link</span> #FLAG_ALLOW_TASK_REPARENTING&#125;</span></span><br><span class="line"><span class="comment"> * &#123;<span class="doctag">@link</span> #FLAG_ALLOW_CLEAR_USER_DATA&#125;, &#123;<span class="doctag">@link</span> #FLAG_UPDATED_SYSTEM_APP&#125;,</span></span><br><span class="line"><span class="comment"> * &#123;<span class="doctag">@link</span> #FLAG_TEST_ONLY&#125;, &#123;<span class="doctag">@link</span> #FLAG_SUPPORTS_SMALL_SCREENS&#125;,</span></span><br><span class="line"><span class="comment"> * &#123;<span class="doctag">@link</span> #FLAG_SUPPORTS_NORMAL_SCREENS&#125;,</span></span><br><span class="line"><span class="comment"> * &#123;<span class="doctag">@link</span> #FLAG_SUPPORTS_LARGE_SCREENS&#125;, &#123;<span class="doctag">@link</span> #FLAG_SUPPORTS_XLARGE_SCREENS&#125;,</span></span><br><span class="line"><span class="comment"> * &#123;<span class="doctag">@link</span> #FLAG_RESIZEABLE_FOR_SCREENS&#125;,</span></span><br><span class="line"><span class="comment"> * &#123;<span class="doctag">@link</span> #FLAG_SUPPORTS_SCREEN_DENSITIES&#125;, &#123;<span class="doctag">@link</span> #FLAG_VM_SAFE_MODE&#125;,</span></span><br><span class="line"><span class="comment"> * &#123;<span class="doctag">@link</span> #FLAG_ALLOW_BACKUP&#125;, &#123;<span class="doctag">@link</span> #FLAG_KILL_AFTER_RESTORE&#125;,</span></span><br><span class="line"><span class="comment"> * &#123;<span class="doctag">@link</span> #FLAG_RESTORE_ANY_VERSION&#125;, &#123;<span class="doctag">@link</span> #FLAG_EXTERNAL_STORAGE&#125;,</span></span><br><span class="line"><span class="comment"> * &#123;<span class="doctag">@link</span> #FLAG_LARGE_HEAP&#125;, &#123;<span class="doctag">@link</span> #FLAG_STOPPED&#125;,</span></span><br><span class="line"><span class="comment"> * &#123;<span class="doctag">@link</span> #FLAG_SUPPORTS_RTL&#125;, &#123;<span class="doctag">@link</span> #FLAG_INSTALLED&#125;,</span></span><br><span class="line"><span class="comment"> * &#123;<span class="doctag">@link</span> #FLAG_IS_DATA_ONLY&#125;, &#123;<span class="doctag">@link</span> #FLAG_IS_GAME&#125;,</span></span><br><span class="line"><span class="comment"> * &#123;<span class="doctag">@link</span> #FLAG_FULL_BACKUP_ONLY&#125;, &#123;<span class="doctag">@link</span> #FLAG_USES_CLEARTEXT_TRAFFIC&#125;,</span></span><br><span class="line"><span class="comment"> * &#123;<span class="doctag">@link</span> #FLAG_MULTIARCH&#125;.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">int</span> flags = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"> <span class="comment">/**</span></span><br><span class="line"><span class="comment">  * Value for &#123;<span class="doctag">@link</span> #flags&#125;: if set, this application is installed in the</span></span><br><span class="line"><span class="comment">  * device's system image.</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> FLAG_SYSTEM = <span class="number">1</span>&lt;&lt;<span class="number">0</span>;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>firstInstallTime</strong></li>
+</ul>
+<p><code>android.content.pm.PackageInfo</code> 中有 <code>firstInstallTime</code> 字段，如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * The time at which the app was first installed.  Units are as</span></span><br><span class="line"><span class="comment"> * per &#123;<span class="doctag">@link</span> System#currentTimeMillis()&#125;.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">long</span> firstInstallTime;</span><br></pre></td></tr></table></figure>
+<h2 id="判断方式"><a href="#判断方式" class="headerlink" title="判断方式"></a>判断方式</h2><p>实测 <code>uid</code> 和 <code>firstInstallTime</code> 的关系如下：</p>
+<table>
+<thead>
+<tr>
+<th>uid</th>
+<th>10000</th>
+<th>10001</th>
+<th>…</th>
+<th>10060</th>
+<th>10061</th>
+<th>…</th>
+<th>10100</th>
+<th>10101</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>firstInstallTime</strong></td>
+<td><font color="#FF0000">t2</font></td>
+<td>t1</td>
+<td></td>
+<td>t5</td>
+<td>t6</td>
+<td></td>
+<td>t9</td>
+<td>t10</td>
+</tr>
+<tr>
+<td><strong>system</strong></td>
+<td>true</td>
+<td><font color="#FF0000">false</font></td>
+<td></td>
+<td>true</td>
+<td>false</td>
+<td></td>
+<td>false</td>
+<td>false</td>
+</tr>
+</tbody>
+</table>
+<p> <code>uid</code> 连续变化，从 10000 开始</p>
+<p><code>firstInstallTime</code> 在预装应用中可能出现跳变，不随 <code>uid</code> 连续变化，在用户自己安装的应用中则会随 <code>uid</code> 连续变化</p>
+<p><code>flags</code> 为 system 的 <code>uid</code> 没有覆盖全部的预装应用，如 10000 ~ 10061 为预装应用，但 10001 可能为非system</p>
+<p>根据以上规律，设计以下判断方法：</p>
+<blockquote>
+<p>1、从高 <code>uid</code> 往低 <code>uid</code> 查询，找到第一个 <code>flags</code> 为 system的应用 <code>uid</code> ，假设为 10060，同时记录其前一个(遍历的方向来说)应用的 <code>uid</code> ，假设为 10061</p>
+<p>2、找到要判断应用的 <code>uid</code> ，假设为 x</p>
+<p>3、如果 x &lt;= 10060，则认为是预装应用，否则如果 x 的安装时间在 10061 之后一天之内，则认为是第一时间安装</p>
+</blockquote>
+<p>代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> TIME_BUILT_IN = <span class="number">1</span>;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> TIME_FIRST_TIME = <span class="number">2</span>;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> TIME_OTHER = <span class="number">3</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">getInstallTimeOfPkg</span><span class="params">(String pkg, Context context)</span> </span>&#123;</span><br><span class="line">    PackageManager pm = context.getPackageManager();</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        PackageInfo toCheckPkgInfo = pm.getPackageInfo(pkg, PackageManager.GET_CONFIGURATIONS);</span><br><span class="line">        <span class="keyword">long</span> toCheckPkgInstallTime = toCheckPkgInfo.firstInstallTime;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">long</span> firstBuiltInInstallTime = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> toCheckPkgUid = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> uid = Process.LAST_APPLICATION_UID; uid &gt;= Process.FIRST_APPLICATION_UID; uid--) &#123;</span><br><span class="line">            String[] pkgList = pm.getPackagesForUid(uid);</span><br><span class="line">            <span class="keyword">if</span> (pkgList == <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            String pkgName = pkgList[<span class="number">0</span>];</span><br><span class="line">            <span class="keyword">if</span> (pkg.equals(pkgName)) &#123;</span><br><span class="line">                toCheckPkgUid = uid;</span><br><span class="line">            &#125;</span><br><span class="line">            PackageInfo pkgInfo = pm.getPackageInfo(pkgName, PackageManager.GET_CONFIGURATIONS);</span><br><span class="line">            <span class="keyword">boolean</span> isSystem = (pkgInfo.applicationInfo.flags &amp; ApplicationInfo.FLAG_SYSTEM) != <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">if</span> (isSystem) &#123;</span><br><span class="line">                <span class="keyword">if</span> (toCheckPkgUid &lt; uid) &#123;</span><br><span class="line">                    <span class="keyword">return</span> TIME_BUILT_IN;</span><br><span class="line">                &#125; <span class="keyword">else</span> <span class="keyword">if</span> (toCheckPkgInstallTime - firstBuiltInInstallTime &lt; DateUtils.DAY_IN_MILLIS) &#123;</span><br><span class="line">                    <span class="keyword">return</span> TIME_FIRST_TIME;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                firstBuiltInInstallTime = pkgInfo.firstInstallTime;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception ignored) &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> TIME_OTHER;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>PS：</p>
+<blockquote>
+<ul>
+<li><p>Process.LAST_APPLICATION_UID 值较大，为提升效率遍历 <code>uid</code> 的起始值可设置小一些，如从 Process.FIRST_APPLICATION_UID + 2000 开始</p>
+</li>
+<li><p>通过 <code>uid</code> 遍历安装应用的方式在多数机型上不会被认为使用了读取安装应用列表权限</p>
+</li>
+</ul>
+</blockquote>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag"># android</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/03/09/frp反向代理使用/" rel="next" title="frp反向代理使用">
+                <i class="fa fa-chevron-left"></i> frp反向代理使用
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpg" alt="makunle">
+            
+              <p class="site-author-name" itemprop="name">makunle</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/makunle" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:makunle@qq.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#定义"><span class="nav-number">1.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#原理"><span class="nav-number">2.</span> <span class="nav-text">原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#可获取的信息"><span class="nav-number">2.1.</span> <span class="nav-text">可获取的信息</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#判断方式"><span class="nav-number">2.2.</span> <span class="nav-text">判断方式</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">makunle</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 访问人数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+  
+  <script type="text/javascript">
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item=>{
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: true,
+        notify: true,
+        appId: 'bf7pJs5fJaVOs9JdrGjsPqm5-gzGzoHsz',
+        appKey: 'Su57Cq5V4RaPqD1iMLYPvHu9',
+        placeholder: '文明发言，拒绝广告',
+        avatar:'mm',
+        guest_info:guest,
+        pageSize:'10' || 10,
+    });
+  </script>
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
