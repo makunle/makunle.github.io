@@ -92,7 +92,11 @@
 <meta property="og:image" content="http://makunle.github.io/2019/03/09/云盘KodExplore部署/1552125016708.png">
 <meta property="og:image" content="http://makunle.github.io/2019/03/09/云盘KodExplore部署/1552125474546.png">
 <meta property="og:image" content="http://makunle.github.io/2019/03/09/云盘KodExplore部署/1552125566640.png">
-<meta property="og:updated_time" content="2019-03-09T10:03:41.746Z">
+<meta property="og:image" content="http://makunle.github.io/2019/03/09/云盘KodExplore部署/1552199960160.png">
+<meta property="og:image" content="http://makunle.github.io/2019/03/09/云盘KodExplore部署/1552200263968.png">
+<meta property="og:image" content="http://makunle.github.io/2019/03/09/云盘KodExplore部署/1552200340548.png">
+<meta property="og:image" content="http://makunle.github.io/2019/03/09/云盘KodExplore部署/1552200533568.png">
+<meta property="og:updated_time" content="2019-03-10T06:53:53.131Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="云盘KodExplore部署">
 <meta name="twitter:description" content="前言在Andriod手机上部署了ubuntu后，感觉得做点什么才好，先搭建一个云盘服务吧。云盘选用KodExplorer，搭建过程较为简单，完整步骤如下：  安装apache 部署KodExplorer  安装apache&amp;amp;php首先连接ubuntu： 1ssh android@192.168.0.101 输入密码后便进入了ubuntu的shell  开始动手，安装apache 1sudo">
@@ -367,21 +371,42 @@
 <p>开启服务</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo /etc/init.d/apache2 start</span><br></pre></td></tr></table></figure>
 <p>不出意外，浏览器中输入Android手机的ip就能见到apache的默认页面</p>
-<p><img src="1552123953278.png" alt="1552123953278"></p>
+<div style="width: 700px; margin: auto"><img src="1552123953278.png" alt="1552123953278"></div>
+
 <p>之后安装php</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install php7.2</span><br></pre></td></tr></table></figure>
 <p>重启apache</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo /etc/init.d/apache2 restart</span><br></pre></td></tr></table></figure>
 <p>至此服务环境差不多了，不过还差几个php库，下面用到时再安装</p>
-<h1 id="KodExplorer-部署"><a href="#KodExplorer-部署" class="headerlink" title="KodExplorer 部署"></a>KodExplorer 部署</h1><p>之后开始 <a href="https://kodcloud.com/download/" target="_blank" rel="noopener">KodeExplorer</a> 的部署，进入 <code>/var/www/html/</code>一顿操作</p>
+<h1 id="KodExplorer-部署"><a href="#KodExplorer-部署" class="headerlink" title="KodExplorer 部署"></a>KodExplorer 部署</h1><h2 id="基础功能部署"><a href="#基础功能部署" class="headerlink" title="基础功能部署"></a>基础功能部署</h2><p>之后开始 <a href="https://kodcloud.com/download/" target="_blank" rel="noopener">KodeExplorer</a> 的部署，进入 <code>/var/www/html/</code>一顿操作</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">cd /var/www/html/</span><br><span class="line">sudo rm index.html -f</span><br><span class="line">sudo wget http://static.kodcloud.com/update/download/kodexplorer4.39.zip</span><br><span class="line">sudo unzip kodexplorer4.39.zip</span><br><span class="line">sudo chmod -R 777 /var/www/html/</span><br></pre></td></tr></table></figure>
 <p>刷新一下浏览器应该能看到KodExplorer初始页面</p>
-<p><img src="1552125016708.png" alt="1552125016708"></p>
+<div style="width: 700px; margin: auto"><img src="1552125016708.png" alt="1552125016708"></div>
+
 <p>先根据提示安装缺失的php库，之后重启apache，刷新页面</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install php7.2-curl php7.2-mbstring php7.2-gd</span><br><span class="line">sudo /etc/init.d/apache2 restart</span><br></pre></td></tr></table></figure>
-<p><img src="1552125474546.png" alt="1552125474546"></p>
+<div style="width: 700px; margin: auto"><img src="1552125474546.png" alt="1552125474546"></div>
+
 <p>设置管理员密码后点登录，用户名为 <code>admin</code> 密码为刚设置的密码</p>
-<p><img src="1552125566640.png" alt="1552125566640"></p>
+<div style="width: 700px; margin: auto"><img src="1552125566640.png" alt="1552125566640"></div>
+
+
+
+<h2 id="Android上部署的ubuntu额外说明"><a href="#Android上部署的ubuntu额外说明" class="headerlink" title="Android上部署的ubuntu额外说明"></a>Android上部署的ubuntu额外说明</h2><p>对于android上部署的ubuntu，大部分情况下希望可以从云盘访问sdcard，比如将sdcard放到这里：</p>
+<div style="width: 600px; margin: auto"><img src="1552199960160.png" alt="1552199960160"></div>
+
+<p>对此可将sdcard软链接到这个目录下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd /var/www/html/data/User/admin/home/</span><br><span class="line">sudo ln -s /mnt/sdcard sdcard</span><br></pre></td></tr></table></figure>
+<p>这时候刷新下网页如下：</p>
+<div style="width: 600px; margin: auto"><img src="1552200263968.png" alt="1552200263968"></div>
+
+<p>sdcard已经加进来了，但是因为权限原因无法访问，查看<code>/mnt/sdcard</code>权限如下：</p>
+<p><img src="1552200340548.png" alt="1552200340548"></p>
+<p>web服务的的用户为 <code>www-data</code>，将  <code>www-data</code> 加入到组 <code>aid_sdcard_rw</code> 并重启apache即可：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo usermod -G aid_sdcard_rw www-data</span><br><span class="line">sudo /etc/init.d/apache2 restart</span><br></pre></td></tr></table></figure>
+<p>刷新网页后发现sdcard文件夹已经可打开</p>
+<div style="width: 600px; margin: auto"><img src="1552200533568.png" alt="1552200533568"></div>
+
 
       
     </div>
@@ -574,7 +599,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#安装apache-amp-php"><span class="nav-number">2.</span> <span class="nav-text">安装apache&amp;php</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#KodExplorer-部署"><span class="nav-number">3.</span> <span class="nav-text">KodExplorer 部署</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#安装apache-amp-php"><span class="nav-number">2.</span> <span class="nav-text">安装apache&amp;php</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#KodExplorer-部署"><span class="nav-number">3.</span> <span class="nav-text">KodExplorer 部署</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#基础功能部署"><span class="nav-number">3.1.</span> <span class="nav-text">基础功能部署</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Android上部署的ubuntu额外说明"><span class="nav-number">3.2.</span> <span class="nav-text">Android上部署的ubuntu额外说明</span></a></li></ol></li></ol></div>
             
 
           </div>
