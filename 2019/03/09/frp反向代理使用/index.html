@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="自在">
 <meta property="og:description" content="前言花钱买了vps后茶不思了，饭不香了，总想更多的捣鼓一些东西出来，更多的发挥vps的功能。毕竟哥也是在这个世界上有公网ip的人了。 不过为了便宜，vps的配置不高，出的钱其实还是用来买公网ip的。不把这个ip好好利用起来对不起出的钱啊。 而除了反向代理，已经想不到更好的利用这个ip的方法了。 反向代理反向代理的原理很简单，就是用公网ip给内网ip做代理，这样通过公网ip就能访问内网ip frp反">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-03-09T13:25:06.494Z">
+<meta property="og:updated_time" content="2019-03-11T13:01:24.731Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="frp反向代理使用">
 <meta name="twitter:description" content="前言花钱买了vps后茶不思了，饭不香了，总想更多的捣鼓一些东西出来，更多的发挥vps的功能。毕竟哥也是在这个世界上有公网ip的人了。 不过为了便宜，vps的配置不高，出的钱其实还是用来买公网ip的。不把这个ip好好利用起来对不起出的钱啊。 而除了反向代理，已经想不到更好的利用这个ip的方法了。 反向代理反向代理的原理很简单，就是用公网ip给内网ip做代理，这样通过公网ip就能访问内网ip frp反">
@@ -364,7 +364,7 @@
 <h1 id="frp"><a href="#frp" class="headerlink" title="frp"></a>frp</h1><p>反向代理软件很多，这里选择frp（我最初知道反向代理就是通过frp了解的）,frp的配置相对其他软件更简单（听说的），参见 <a href="https://github.com/fatedier/frp" target="_blank" rel="noopener">frp github</a> 。</p>
 <p>frp配置分为服务端和客户端，服务端放在vps上，客户端为自己的各种设备，如Android上部署的ubuntu。服务的配置如下：</p>
 <h2 id="服务端配置文件"><a href="#服务端配置文件" class="headerlink" title="服务端配置文件"></a>服务端配置文件</h2><p> <code>frps.ini</code></p>
-<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[common]</span></span><br><span class="line"><span class="attr">bind_port</span> = <span class="number">7000</span>			// 提供服务的端口</span><br><span class="line"><span class="attr">token</span> = xxxx 				// 相当于密钥的东西</span><br><span class="line"><span class="attr">kcp_bind_port</span> = <span class="number">7000</span>		// 对应客户端的 protocol = kcp 配置，提升网络性能的</span><br><span class="line"><span class="attr">subdomain_host</span> = domain.xxx // 客户端上部署web服务时设置二级域名用的</span><br><span class="line"><span class="attr">vhost_http_port</span> = <span class="number">800</span>	 	// 二级域名端口，web服务正常为<span class="number">8080</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[common]</span></span><br><span class="line"><span class="attr">bind_port</span> = <span class="number">7000</span>               // 提供服务的端口</span><br><span class="line"><span class="attr">token</span> = xxxx                   // 相当于密钥的东西</span><br><span class="line"><span class="attr">kcp_bind_port</span> = <span class="number">7000</span>           // 对应客户端的 protocol = kcp 配置，提升网络性能的</span><br><span class="line"><span class="attr">subdomain_host</span> = domain.xxx    // 客户端上部署web服务时设置二级域名用的</span><br><span class="line"><span class="attr">vhost_http_port</span> = <span class="number">800</span>          // 二级域名端口，web服务正常为<span class="number">8080</span></span><br></pre></td></tr></table></figure>
 <h2 id="客户端配置文件"><a href="#客户端配置文件" class="headerlink" title="客户端配置文件"></a>客户端配置文件</h2><p>客户端反向代理总体来说为将服务的特定端口映射到特定端口，根据使用功能来说可为tcp转发，或者web代理。客户端配置分为<strong>连接服务端的配置</strong>和<strong>自身提供服务的配置</strong>，连接服务端的配置如下：</p>
 <p><code>frpc.ini</code></p>
 <figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[common]</span></span><br><span class="line"><span class="attr">server_addr</span> = domain.xxx</span><br><span class="line"><span class="attr">server_port</span> = <span class="number">7000</span></span><br><span class="line"><span class="attr">token</span> = xxxx</span><br><span class="line"><span class="attr">protocol</span> = kcp</span><br></pre></td></tr></table></figure>
@@ -502,7 +502,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-count">5</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -524,7 +524,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-count">4</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
