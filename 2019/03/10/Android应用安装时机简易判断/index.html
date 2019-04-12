@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="定义此处将应用的安装时机分为：  预装 新机或刷机后第一时间安装（1天内） 其他情况  原理可获取的信息 uid  Android中每个app会被作为一个用户处理，拥有一个 uid 。正常情况下app的 uid 是根据安装先后递增的， uid 的范围在 android.os.Process 中定义如下： 123456789101112/** * Defines the start of a ran">
+<meta name="description" content="定义此处将应用的安装时机分为：  预装 新机或刷机后第一时间安装（1天内） 其他情况  原理可获取的信息 uid  Android中每个app会被作为一个用户处理，拥有一个 uid 。正常情况下app的 uid 是根据安装先后递增的， uid 的范围在 android.os.Process 中定义如下： 123456789101112/** * Defines the start of a ra">
 <meta name="keywords" content="android">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Android应用安装时机简易判断">
 <meta property="og:url" content="http://makunle.github.io/2019/03/10/Android应用安装时机简易判断/index.html">
 <meta property="og:site_name" content="自在">
-<meta property="og:description" content="定义此处将应用的安装时机分为：  预装 新机或刷机后第一时间安装（1天内） 其他情况  原理可获取的信息 uid  Android中每个app会被作为一个用户处理，拥有一个 uid 。正常情况下app的 uid 是根据安装先后递增的， uid 的范围在 android.os.Process 中定义如下： 123456789101112/** * Defines the start of a ran">
+<meta property="og:description" content="定义此处将应用的安装时机分为：  预装 新机或刷机后第一时间安装（1天内） 其他情况  原理可获取的信息 uid  Android中每个app会被作为一个用户处理，拥有一个 uid 。正常情况下app的 uid 是根据安装先后递增的， uid 的范围在 android.os.Process 中定义如下： 123456789101112/** * Defines the start of a ra">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-03-12T13:01:22.651Z">
+<meta property="og:updated_time" content="2019-04-12T13:13:12.946Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Android应用安装时机简易判断">
-<meta name="twitter:description" content="定义此处将应用的安装时机分为：  预装 新机或刷机后第一时间安装（1天内） 其他情况  原理可获取的信息 uid  Android中每个app会被作为一个用户处理，拥有一个 uid 。正常情况下app的 uid 是根据安装先后递增的， uid 的范围在 android.os.Process 中定义如下： 123456789101112/** * Defines the start of a ran">
+<meta name="twitter:description" content="定义此处将应用的安装时机分为：  预装 新机或刷机后第一时间安装（1天内） 其他情况  原理可获取的信息 uid  Android中每个app会被作为一个用户处理，拥有一个 uid 。正常情况下app的 uid 是根据安装先后递增的， uid 的范围在 android.os.Process 中定义如下： 123456789101112/** * Defines the start of a ra">
 
 
 
@@ -357,7 +357,8 @@
       
 
       
-        <h1 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h1><p>此处将应用的安装时机分为：</p>
+        <hr>
+<h1 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h1><p>此处将应用的安装时机分为：</p>
 <ul>
 <li>预装</li>
 <li>新机或刷机后第一时间安装（1天内）</li>
@@ -435,6 +436,8 @@
 <li><p>Process.LAST_APPLICATION_UID 值较大，为提升效率遍历 <code>uid</code> 的起始值可设置小一些，如从 Process.FIRST_APPLICATION_UID + 2000 开始</p>
 </li>
 <li><p>通过 <code>uid</code> 遍历安装应用的方式在多数机型上不会被认为使用了读取安装应用列表权限</p>
+</li>
+<li><p>部分预装应用为非system应用，如果第一个预装app <code>flags</code> 不为 system，则判断出错 </p>
 </li>
 </ul>
 </blockquote>
@@ -562,7 +565,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-count">7</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -584,7 +587,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-count">8</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>

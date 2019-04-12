@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="android,ubuntu,">
+  <meta name="keywords" content="android,linux,ubuntu,">
 
 
 
@@ -79,21 +79,22 @@
 
 
 
-<meta name="description" content="最近手上有闲置的Android手机，想想如果能拿来搭个服务器什么的总比吃灰强。一番尝试找到了在上面部署ubuntu的方法，在此记录一下部署的方法。 下载下载并安装 Linux Delpoy     google play   github     配置参数设置进入linux deploy后开始界面如下：   点击右下角更改配置，安装ubuntu18.04时配置如下：  国内选择中科大的源速度比较快">
-<meta name="keywords" content="android,ubuntu">
+<meta name="description" content="最近手上有闲置的Android手机，想想如果能拿来搭个服务器什么的总比吃灰强。一番尝试找到了在上面部署ubuntu的方法，在此记录一下部署的方法。 下载下载并安装 Linux Delpoy     google play   github     配置参数设置进入linux deploy后开始界面如下：   点击右下角更改配置，安装ubuntu18.04时配置如下：  国内选择中科大的源速度比较">
+<meta name="keywords" content="android,linux,ubuntu">
 <meta property="og:type" content="article">
 <meta property="og:title" content="使用Linux Deploy在Android上部署Ubuntu">
 <meta property="og:url" content="http://makunle.github.io/2019/03/09/使用Linux Deploy在Android上部署Ubuntu/index.html">
 <meta property="og:site_name" content="自在">
-<meta property="og:description" content="最近手上有闲置的Android手机，想想如果能拿来搭个服务器什么的总比吃灰强。一番尝试找到了在上面部署ubuntu的方法，在此记录一下部署的方法。 下载下载并安装 Linux Delpoy     google play   github     配置参数设置进入linux deploy后开始界面如下：   点击右下角更改配置，安装ubuntu18.04时配置如下：  国内选择中科大的源速度比较快">
+<meta property="og:description" content="最近手上有闲置的Android手机，想想如果能拿来搭个服务器什么的总比吃灰强。一番尝试找到了在上面部署ubuntu的方法，在此记录一下部署的方法。 下载下载并安装 Linux Delpoy     google play   github     配置参数设置进入linux deploy后开始界面如下：   点击右下角更改配置，安装ubuntu18.04时配置如下：  国内选择中科大的源速度比较">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://makunle.github.io/2019/03/09/使用Linux%20Deploy在Android上部署Ubuntu/start.jpg">
 <meta property="og:image" content="http://makunle.github.io/2019/03/09/使用Linux%20Deploy在Android上部署Ubuntu/cfg.jpg">
+<meta property="og:image" content="http://makunle.github.io/2019/03/09/使用Linux%20Deploy在Android上部署Ubuntu/mount.jpg">
 <meta property="og:image" content="http://makunle.github.io/2019/03/09/使用Linux%20Deploy在Android上部署Ubuntu/install.jpg">
-<meta property="og:updated_time" content="2019-03-09T08:48:36.696Z">
+<meta property="og:updated_time" content="2019-04-12T13:26:35.915Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="使用Linux Deploy在Android上部署Ubuntu">
-<meta name="twitter:description" content="最近手上有闲置的Android手机，想想如果能拿来搭个服务器什么的总比吃灰强。一番尝试找到了在上面部署ubuntu的方法，在此记录一下部署的方法。 下载下载并安装 Linux Delpoy     google play   github     配置参数设置进入linux deploy后开始界面如下：   点击右下角更改配置，安装ubuntu18.04时配置如下：  国内选择中科大的源速度比较快">
+<meta name="twitter:description" content="最近手上有闲置的Android手机，想想如果能拿来搭个服务器什么的总比吃灰强。一番尝试找到了在上面部署ubuntu的方法，在此记录一下部署的方法。 下载下载并安装 Linux Delpoy     google play   github     配置参数设置进入linux deploy后开始界面如下：   点击右下角更改配置，安装ubuntu18.04时配置如下：  国内选择中科大的源速度比较">
 <meta name="twitter:image" content="http://makunle.github.io/2019/03/09/使用Linux%20Deploy在Android上部署Ubuntu/start.jpg">
 
 
@@ -361,21 +362,24 @@
       
 
       
-        <p>最近手上有闲置的Android手机，想想如果能拿来搭个服务器什么的总比吃灰强。一番尝试找到了在上面部署ubuntu的方法，在此记录一下部署的方法。</p>
+        <hr>
+<p>最近手上有闲置的Android手机，想想如果能拿来搭个服务器什么的总比吃灰强。一番尝试找到了在上面部署ubuntu的方法，在此记录一下部署的方法。</p>
 <h1 id="下载"><a href="#下载" class="headerlink" title="下载"></a>下载</h1><p>下载并安装 Linux Delpoy   </p>
 <ul>
 <li><a href="https://play.google.com/store/apps/details?id=ru.meefik.linuxdeploy" target="_blank" rel="noopener">google play</a>  </li>
 <li><a href="https://github.com/meefik/linuxdeploy/releases/tag/2.3.0" target="_blank" rel="noopener">github</a>   </li>
 </ul>
 <h1 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h1><h2 id="参数设置"><a href="#参数设置" class="headerlink" title="参数设置"></a>参数设置</h2><p>进入linux deploy后开始界面如下：</p>
-<div style="width: 200px; margin: auto"><img src="start.jpg" alt="开始界面"></div>
+<div style="width: 280px; margin: auto"><img src="start.jpg" alt="开始界面"></div>
 
 <p>点击右下角更改配置，安装ubuntu18.04时配置如下：</p>
 <p><img src="cfg.jpg" alt="图1"></p>
 <p>国内选择中科大的源速度比较快</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://mirrors.ustc.edu.cn/ubuntu-ports/</span><br></pre></td></tr></table></figure>
-<p>部署后的ubuntu如果需要访问Android设备本地内容，可点击 <code>挂载点列表</code>增加挂载点,<br>将Android设备/sdcard 挂载到 ubuntu的/mnt/sdcard方式如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/sdcard:/mnt/sdcard</span><br></pre></td></tr></table></figure></p>
-<p>如需使用图形功能，可勾选<code>允许使用图形环境</code></p>
+<p>部署后的ubuntu如果需要访问Android设备本地内容，可点击 <code>挂载点列表</code>增加挂载点,<br>将Android设备目录 <code>/sdcard</code>  挂载到 ubuntu 的 <code>/mnt/sdcard</code> 配置如下：</p>
+<div style="width: 280px; margin: auto"><img src="mount.jpg" alt="挂载配置"></div>
+
+<p>如需使用图形功能，可勾选<code>允许使用图形环境</code> ，具体配置可自由尝试</p>
 <h1 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h1><p>配置完成后切换到初始页面，选择安装，安装完成后点击<code>启动</code>，之后使用配置的ssh信息即可连接到部署的ubuntu中</p>
 <div style="width: 200px; margin: auto"><img src="install.jpg" alt></div>
 
@@ -397,6 +401,8 @@
         <div class="post-tags">
           
             <a href="/tags/android/" rel="tag"># android</a>
+          
+            <a href="/tags/linux/" rel="tag"># linux</a>
           
             <a href="/tags/ubuntu/" rel="tag"># ubuntu</a>
           
@@ -501,7 +507,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-count">7</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -523,7 +529,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-count">8</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>

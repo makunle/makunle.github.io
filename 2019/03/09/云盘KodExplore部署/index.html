@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="ubuntu,">
+  <meta name="keywords" content="linux,ubuntu,">
 
 
 
@@ -79,13 +79,13 @@
 
 
 
-<meta name="description" content="前言在Andriod手机上部署了ubuntu后，感觉得做点什么才好，先搭建一个云盘服务吧。云盘选用KodExplorer，搭建过程较为简单，完整步骤如下：  安装apache 部署KodExplorer  安装apache&amp;amp;php首先连接ubuntu： 1ssh android@192.168.0.101 输入密码后便进入了ubuntu的shell  开始动手，安装apache 1sudo">
-<meta name="keywords" content="ubuntu">
+<meta name="description" content="前言在Andriod手机上部署了ubuntu后，感觉得做点什么才好，先搭建一个云盘服务吧。云盘选用KodExplorer，搭建过程较为简单，完整步骤如下：  安装apache 部署KodExplorer  安装apache&amp;amp;php首先连接ubuntu： 1ssh android@192.168.0.101 输入密码后便进入了ubuntu的shell  开始动手，安装apache 1sud">
+<meta name="keywords" content="linux,ubuntu">
 <meta property="og:type" content="article">
 <meta property="og:title" content="云盘KodExplore部署">
 <meta property="og:url" content="http://makunle.github.io/2019/03/09/云盘KodExplore部署/index.html">
 <meta property="og:site_name" content="自在">
-<meta property="og:description" content="前言在Andriod手机上部署了ubuntu后，感觉得做点什么才好，先搭建一个云盘服务吧。云盘选用KodExplorer，搭建过程较为简单，完整步骤如下：  安装apache 部署KodExplorer  安装apache&amp;amp;php首先连接ubuntu： 1ssh android@192.168.0.101 输入密码后便进入了ubuntu的shell  开始动手，安装apache 1sudo">
+<meta property="og:description" content="前言在Andriod手机上部署了ubuntu后，感觉得做点什么才好，先搭建一个云盘服务吧。云盘选用KodExplorer，搭建过程较为简单，完整步骤如下：  安装apache 部署KodExplorer  安装apache&amp;amp;php首先连接ubuntu： 1ssh android@192.168.0.101 输入密码后便进入了ubuntu的shell  开始动手，安装apache 1sud">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://makunle.github.io/2019/03/09/云盘KodExplore部署/1552123714226.png">
 <meta property="og:image" content="http://makunle.github.io/2019/03/09/云盘KodExplore部署/1552123953278.png">
@@ -96,10 +96,10 @@
 <meta property="og:image" content="http://makunle.github.io/2019/03/09/云盘KodExplore部署/1552200263968.png">
 <meta property="og:image" content="http://makunle.github.io/2019/03/09/云盘KodExplore部署/1552200340548.png">
 <meta property="og:image" content="http://makunle.github.io/2019/03/09/云盘KodExplore部署/1552200533568.png">
-<meta property="og:updated_time" content="2019-03-10T06:53:53.131Z">
+<meta property="og:updated_time" content="2019-04-12T13:34:29.009Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="云盘KodExplore部署">
-<meta name="twitter:description" content="前言在Andriod手机上部署了ubuntu后，感觉得做点什么才好，先搭建一个云盘服务吧。云盘选用KodExplorer，搭建过程较为简单，完整步骤如下：  安装apache 部署KodExplorer  安装apache&amp;amp;php首先连接ubuntu： 1ssh android@192.168.0.101 输入密码后便进入了ubuntu的shell  开始动手，安装apache 1sudo">
+<meta name="twitter:description" content="前言在Andriod手机上部署了ubuntu后，感觉得做点什么才好，先搭建一个云盘服务吧。云盘选用KodExplorer，搭建过程较为简单，完整步骤如下：  安装apache 部署KodExplorer  安装apache&amp;amp;php首先连接ubuntu： 1ssh android@192.168.0.101 输入密码后便进入了ubuntu的shell  开始动手，安装apache 1sud">
 <meta name="twitter:image" content="http://makunle.github.io/2019/03/09/云盘KodExplore部署/1552123714226.png">
 
 
@@ -367,7 +367,8 @@
       
 
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>在Andriod手机上部署了ubuntu后，感觉得做点什么才好，先搭建一个云盘服务吧。云盘选用KodExplorer，搭建过程较为简单，完整步骤如下：</p>
+        <hr>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>在Andriod手机上部署了ubuntu后，感觉得做点什么才好，先搭建一个云盘服务吧。云盘选用KodExplorer，搭建过程较为简单，完整步骤如下：</p>
 <ul>
 <li>安装apache</li>
 <li>部署KodExplorer</li>
@@ -388,8 +389,11 @@
 <p>重启apache</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo /etc/init.d/apache2 restart</span><br></pre></td></tr></table></figure>
 <p>至此服务环境差不多了，不过还差几个php库，下面用到时再安装</p>
-<h1 id="KodExplorer-部署"><a href="#KodExplorer-部署" class="headerlink" title="KodExplorer 部署"></a>KodExplorer 部署</h1><h2 id="基础功能部署"><a href="#基础功能部署" class="headerlink" title="基础功能部署"></a>基础功能部署</h2><p>之后开始 <a href="https://kodcloud.com/download/" target="_blank" rel="noopener">KodeExplorer</a> 的部署，进入 <code>/var/www/html/</code>一顿操作</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">cd /var/www/html/</span><br><span class="line">sudo rm index.html -f</span><br><span class="line">sudo wget http://static.kodcloud.com/update/download/kodexplorer4.39.zip</span><br><span class="line">sudo unzip kodexplorer4.39.zip</span><br><span class="line">sudo chmod -R 777 /var/www/html/</span><br></pre></td></tr></table></figure>
+<h1 id="KodExplorer-部署"><a href="#KodExplorer-部署" class="headerlink" title="KodExplorer 部署"></a>KodExplorer 部署</h1><h2 id="基础功能部署"><a href="#基础功能部署" class="headerlink" title="基础功能部署"></a>基础功能部署</h2><p>之后开始 <a href="https://kodcloud.com/download/" target="_blank" rel="noopener">KodeExplorer</a> 的部署，进入 <code>/var/www/html/</code> 一顿操作</p>
+<blockquote>
+<p>注意：将下面的 <code>kodexplorer4.40.zip</code> 替换为官网最新的版本</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">cd /var/www/html/</span><br><span class="line">sudo rm index.html -f</span><br><span class="line">sudo wget http://static.kodcloud.com/update/download/kodexplorer4.40.zip</span><br><span class="line">sudo unzip kodexplorer4.39.zip</span><br><span class="line">sudo chmod -R 777 /var/www/html/</span><br></pre></td></tr></table></figure>
 <p>刷新一下浏览器应该能看到KodExplorer初始页面</p>
 <div style="width: 700px; margin: auto"><img src="1552125016708.png" alt="1552125016708"></div>
 
@@ -433,6 +437,8 @@
     <footer class="post-footer">
       
         <div class="post-tags">
+          
+            <a href="/tags/linux/" rel="tag"># linux</a>
           
             <a href="/tags/ubuntu/" rel="tag"># ubuntu</a>
           
@@ -541,7 +547,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-count">7</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -563,7 +569,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-count">8</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
