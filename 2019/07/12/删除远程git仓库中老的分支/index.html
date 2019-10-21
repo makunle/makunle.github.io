@@ -22,7 +22,7 @@
     <meta name="description" content>
     <meta http-equiv="Cache-control" content="no-cache">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>keep move</title>
+    <title>删除远程git仓库中老的分支 · keep move</title>
     <style type="text/css">
     @font-face {
         font-family: 'Oswald-Regular';
@@ -203,12 +203,23 @@
 </head>
 
     
+        <body class="post-body">
+    
     
 <header class="header">
 
     <div class="read-progress"></div>
     <div class="header-sidebar-menu">&#xe775;</div>
     <!-- post页的toggle banner  -->
+    
+    <div class="banner">
+            <div class="blog-title">
+                <a href="/">keep move</a>
+            </div>
+            <div class="post-title">
+                <a href="#" class="post-name">删除远程git仓库中老的分支</a>
+            </div>
+    </div>
     
     <a class="home-link" href="/">keep move</a>
 </header>
@@ -220,24 +231,76 @@
 
 
 
+
+height:50vh;
 ">
     
     <!-- 主页  -->
+    
+    
+    <!-- 404页  -->
             
     <div class="site-intro-placeholder"></div>
-    <div class="site-intro-img" style="background-image: url(/)"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/post-bg.jpg)"></div>
     <div class="site-intro-meta">
         <!-- 标题  -->
         <h1 class="intro-title">
             <!-- 主页  -->
+            
+            删除远程git仓库中老的分支
+            <!-- 404 -->
             
         </h1>
         <!-- 副标题 -->
         <p class="intro-subtitle">
             <!-- 主页副标题  -->
             
+            
+            <!-- 404 -->
+            
         </p>
         <!-- 文章页meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                    <div class="post-intro-tags">
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="linux">linux</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="shell">shell</a>
+    
+</div>
+                
+                
+                    <div class="post-intro-read">
+                        <span>字数统计: <span class="post-count word-count">194</span>阅读时长: <span class="post-count reading-time">1 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <span class="post-intro-calander iconfont-archer">&#xe676;</span>
+                    <span class="post-intro-time">2019/07/12</span>
+                    
+                    <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                        <span class="iconfont-archer">&#xe602;</span>
+                        <span id="busuanzi_value_page_pv"></span>
+                    </span>
+                    
+                    <span class="shareWrapper">
+                        <span class="iconfont-archer shareIcon">&#xe71d;</span>
+                        <span class="shareText">Share</span>
+                        <ul class="shareList">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
         
     </div>
 </div>
@@ -338,111 +401,69 @@
 </script>        
         <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
         <div class="container container-unloaded">
-            <main class="main index-page">
-    
-    
-    
-    
-    
-    
-    <article class="index-post">
-        <a class="abstract-title" href="/2019/07/12/删除远程git仓库中老的分支/">
-            
-                <span>删除远程git仓库中老的分支</span>
-        </a>
-        <div class="abstract-content">
-            
-随着工程的发展，推送到remote的分支会越来越多，有一些merge后忘记删除的、一些只是临时存放代码，之后忘记删除的。这些分支的存在会对remote分支查找带来一些困难。为此写一个脚本删除当前工程目录对应的remote仓库中，指定时间点之后没有提交记录的分支：
-1234567891011121314151617#!/bin/bash# 删除这个时间之后没有提交记录的分支lastTime="2019-1-1"git branch -r | while read linedo    # 保护release分支    if [[ "$line" =~ "release" ]]; then ...
-        </div>
-        <div class="abstract-post-meta">
-            <!-- date  -->
-            <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2019/07/12</span>
-            </div>
-            <!-- tags  -->
-            
-            <div class="abstract-tags">
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="linux">linux</a>
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="shell">shell</a>
-    
-</div>
-            
-        </div>
-    </article>
-    
-    
-    
-    
-    
-    
-    <article class="index-post">
-        <a class="abstract-title" href="/2019/04/09/ssh自动登录脚本/">
-            
-                <span>ssh自动登录脚本</span>
-        </a>
-        <div class="abstract-content">
-            
-每次ssh登陆vps都需要进行重复的操作，感觉很麻烦。网上找了下自动操作的方法，记录如下：
-1234567891011#!/usr/bin/expect -fset user userNameset host hostNameset port sshPortset password userPasswordset timeout -1spawn ssh $user@$host -p $portexpect "*password:"send "$password\r"interact
+            <main class="main post-page">
+    <article class="article-entry">
+        <hr>
+<p>随着工程的发展，推送到remote的分支会越来越多，有一些merge后忘记删除的、一些只是临时存放代码，之后忘记删除的。<br>这些分支的存在会对remote分支查找带来一些困难。<br>为此写一个脚本删除当前工程目录对应的remote仓库中，<code>指定时间点之后没有提交记录的分支</code>：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">!/bin/bash</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 删除这个时间之后没有提交记录的分支</span></span><br><span class="line">lastTime="2019-1-1"</span><br><span class="line"></span><br><span class="line">git branch -r | while read line</span><br><span class="line">do</span><br><span class="line">    # 保护release分支</span><br><span class="line">    if [[ "$line" =~ "release" ]]; then</span><br><span class="line">        continue</span><br><span class="line">    fi</span><br><span class="line">    haveCommitSinceLastTime=$(git log $line --since=$lastTime)</span><br><span class="line">    if [[ "$haveCommitSinceLastTime" == "" ]];then</span><br><span class="line">        echo "[delete branch]" $line</span><br><span class="line">        git push origin --delete $&#123;line#origin/&#125;</span><br><span class="line">    fi</span><br><span class="line">done</span><br></pre></td></tr></table></figure>
+<p>git branch会列出<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">origin/HEAD -&gt; origin/master</span><br></pre></td></tr></table></figure></p>
+<p>这一分支会解析出错，不影响其他分支处理</p>
 
-        </div>
-        <div class="abstract-post-meta">
-            <!-- date  -->
-            <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2019/04/09</span>
-            </div>
-            <!-- tags  -->
-            
-            <div class="abstract-tags">
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="linux">linux</a>
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="shell">shell</a>
-    
-</div>
-            
-        </div>
     </article>
+    <!-- license  -->
     
-    
-    
-    
-    
-    
-    <article class="index-post">
-        <a class="abstract-title" href="/2019/03/18/记一个批处理冒泡排序脚本/">
-            
-                <span>记一个批处理冒泡排序脚本</span>
-        </a>
-        <div class="abstract-content">
-            
-初次接触编程是在高二的时候，那时家就在学校中，住着职工房，整个学校有两台电脑，一台可以上网放在校长办公室，另一台不可以放在教师办公室。
-暑假时住在学校的大家会到校长室吹空调乘凉，也就在那时发现校长室电脑里面有个清理垃圾的.bat文件，打开后便在黑底白字的控制台上疯狂的输出语句，而用文本方式打开时里面就几行简单的文字，对此很好奇。
-经过多番百度，知道了这个是批处理文件，并发现了一个让我沉迷的论坛，批处理之家，从此开启了学习批处理的道路。每天早上趁着还没有其他人用这个有网络的电脑打牌看电视的时候，在之家的资料和教程栏目里将教程打开，粘到txt中，放到U盘（有一次老爸到南京，求着让买的，10...
+        <div class="license-wrapper">
+            <p>原文作者：<a href="http://makunle.github.io">makunle</a>
+            </p><p>原文链接：<a href="http://makunle.github.io/2019/07/12/删除远程git仓库中老的分支/">http://makunle.github.io/2019/07/12/删除远程git仓库中老的分支/</a>
+            </p><p>发表日期：<a href="http://makunle.github.io/2019/07/12/删除远程git仓库中老的分支/">July 12th 2019, 1:06:00 am</a>
+            </p><p>更新日期：<a href="http://makunle.github.io/2019/07/12/删除远程git仓库中老的分支/">August 18th 2019, 1:32:24 am</a>
+            </p><p>版权声明：本文采用<a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可</p>
         </div>
-        <div class="abstract-post-meta">
-            <!-- date  -->
-            <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2019/03/18</span>
-            </div>
-            <!-- tags  -->
-            
-            <div class="abstract-tags">
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="批处理">批处理</a>
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="冒泡排序">冒泡排序</a>
-    
-</div>
-            
-        </div>
-    </article>
     
     <!-- paginator  -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href="/2019/04/09/ssh自动登录脚本/" title="ssh自动登录脚本">
+                    <div class="prevTitle">ssh自动登录脚本</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- 评论插件 -->
+    <!-- 来必力City版安装代码 -->
+
+<!-- City版安装代码已完成 -->
     
+    
+    <!-- partial('_partial/comment/changyan') -->
+    <!--PC版-->
+
+
+    
+    
+    <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+    <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+    <div id="comment"></div>
+    <script>
+    new Valine({
+        el: '#comment' ,
+        notify:false, 
+        verify:false, 
+        appId: "bf7pJs5fJaVOs9JdrGjsPqm5-gzGzoHsz",
+        appKey: "Su57Cq5V4RaPqD1iMLYPvHu9",
+        placeholder: "文明发言，拒绝广告",
+        path:window.location.pathname, 
+        avatar:'mm' 
+    });
+    </script>
+
+
+    <!-- 评论 -->
 </main>
             <!-- profile -->
             
@@ -527,6 +548,24 @@
 </footer>
     </div>
     <!-- toc -->
+    
+    <div class="toc-wrapper" style=
+    
+
+
+
+
+
+
+
+top:50vh;
+
+    >
+        <div class="toc-catalog">
+            <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+        </div>
+        
+    </div>
     
     <div class="back-top iconfont-archer">&#xe639;</div>
     <div class="sidebar sidebar-hide">
@@ -768,6 +807,8 @@ jsonContent:
     
     </div>
     <!-- async load share.js -->
+    
+        <script src="/scripts/share.js" async></script>    
      
     </body>
 </html>
